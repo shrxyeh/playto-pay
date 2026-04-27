@@ -1,0 +1,4 @@
+[variables]
+DATABASE_URL = "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+REDIS_URL = "redis://localhost:6379/0"
+SECRET_KEY = "build-time-placeholder"
