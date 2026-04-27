@@ -1,3 +1,4 @@
+import dj_database_url
 from decouple import config
 
 SECRET_KEY = config("SECRET_KEY", default="dev-secret-key-change-in-production")
@@ -48,16 +49,20 @@ TEMPLATES = [
     },
 ]
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME", default="payouts_db"),
-        "USER": config("DB_USER", default="postgres"),
-        "PASSWORD": config("DB_PASSWORD", default="postgres"),
-        "HOST": config("DB_HOST", default="localhost"),
-        "PORT": config("DB_PORT", default="5432"),
+_database_url = config("DATABASE_URL", default=None)
+if _database_url:
+    DATABASES = {"default": dj_database_url.parse(_database_url, conn_max_age=600)}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME", default="payouts_db"),
+            "USER": config("DB_USER", default="postgres"),
+            "PASSWORD": config("DB_PASSWORD", default="postgres"),
+            "HOST": config("DB_HOST", default="localhost"),
+            "PORT": config("DB_PORT", default="5432"),
+        }
     }
-}
 
 CELERY_BROKER_URL = config("REDIS_URL", default="redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = config("REDIS_URL", default="redis://localhost:6379/0")
@@ -76,7 +81,8 @@ REST_FRAMEWORK = {
 }
 
 STATIC_URL = "/static/"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATIC_ROOT = "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
