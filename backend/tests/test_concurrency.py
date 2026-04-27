@@ -4,7 +4,7 @@ when the balance only covers one should result in exactly one success.
 
 Uses TransactionTestCase (not TestCase) because:
   - TestCase wraps each test in a transaction that is never committed,
-    so SELECT FOR UPDATE never actually blocks — all threads share the
+    so SELECT FOR UPDATE never actually blocks; all threads share the
     same unfinished transaction and the lock is invisible.
   - TransactionTestCase commits each operation to the real DB so
     PostgreSQL row locks work as intended across threads.
@@ -42,7 +42,7 @@ class ConcurrentPayoutTest(TransactionTestCase):
         barrier = threading.Barrier(2)  # ensures both threads start together
 
         def attempt_payout():
-            barrier.wait()  # synchronize — both hit the DB at the same moment
+            barrier.wait()  # both threads hit the DB at the same moment
             try:
                 data = create_payout(
                     merchant_id=str(self.merchant.id),

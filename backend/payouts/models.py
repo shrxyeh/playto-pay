@@ -45,7 +45,7 @@ class Payout(models.Model):
         if new_status not in allowed:
             raise InvalidTransitionError(
                 f"Cannot move payout {self.id} from '{self.status}' to '{new_status}' "
-                f"(allowed: {allowed or 'none — terminal state'})"
+                f"(allowed: {allowed or 'none, terminal state'})"
             )
         self.status = new_status
 
@@ -56,7 +56,7 @@ class Payout(models.Model):
 class LedgerEntry(models.Model):
     """
     Append-only ledger. Positive = credit, negative = debit.
-    Balance is always derived via SUM — never stored as a column.
+    Balance is always derived via SUM, never stored as a column.
     """
 
     class EntryType(models.TextChoices):

@@ -39,7 +39,7 @@ def create_payout(
 
     with transaction.atomic():
         # Lock the merchant row first. This serializes all concurrent payout
-        # requests for this merchant — the second request blocks here until
+        # requests for this merchant. The second request blocks here until
         # the first commits, then reads the already-updated ledger balance.
         try:
             merchant = Merchant.objects.select_for_update().get(id=merchant_id)
@@ -114,7 +114,7 @@ def finalize_success(payout_id: str) -> None:
 
 
 def finalize_failure(payout_id: str) -> None:
-    """Refund is atomic with the state transition — both commit or neither does."""
+    """Refund is atomic with the state transition; both commit or neither does."""
     with transaction.atomic():
         payout = Payout.objects.select_for_update().get(id=payout_id)
         payout.transition_to(Payout.Status.FAILED)

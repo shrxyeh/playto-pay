@@ -59,7 +59,7 @@ def process_payout(self, payout_id: str) -> None:
         finalize_success(payout_id)
     elif outcome == "failure":
         finalize_failure(payout_id)
-    # "stuck" — do nothing; reap_stuck_payouts handles the timeout
+    # "stuck" outcome: do nothing, reap_stuck_payouts handles the timeout
 
 
 @shared_task
