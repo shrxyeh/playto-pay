@@ -10,10 +10,10 @@ def create_periodic_tasks(apps, schema_editor):
     PeriodicTask = apps.get_model("django_celery_beat", "PeriodicTask")
 
     every_10s, _ = IntervalSchedule.objects.get_or_create(
-        every=10, period=IntervalSchedule.SECONDS
+        every=10, period="seconds"
     )
     every_15s, _ = IntervalSchedule.objects.get_or_create(
-        every=15, period=IntervalSchedule.SECONDS
+        every=15, period="seconds"
     )
 
     PeriodicTask.objects.get_or_create(
