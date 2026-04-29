@@ -11,5 +11,3 @@ class PayoutNotFoundError(Exception):
     pass
 
 
-class InvalidIdempotencyKeyError(Exception):
-    pass
