@@ -1,4 +1,4 @@
-const BASE = (process.env.REACT_APP_API_URL || "") + "/api/v1";
+const BASE = (import.meta.env.VITE_API_URL || "") + "/api/v1";
 
 function headers(merchantId, idempotencyKey = null) {
   const h = {
