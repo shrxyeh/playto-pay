@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -e
+set -ex
 
 python manage.py migrate --noinput
 python manage.py seed
