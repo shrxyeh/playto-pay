@@ -1,7 +1,3 @@
-"""
-Idempotency tests: same Idempotency-Key must always return the same response
-and must never create duplicate payouts or duplicate ledger entries.
-"""
 import uuid
 from django.test import TestCase, TransactionTestCase
 import threading

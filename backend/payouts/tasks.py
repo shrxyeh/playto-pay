@@ -25,7 +25,7 @@ def _simulate_bank_transfer() -> str:
     bind=True,
     max_retries=MAX_RETRIES,
     default_retry_delay=30,
-    acks_late=True,  # re-queue on worker crash
+    acks_late=True,
 )
 def process_payout(self, payout_id: str) -> None:
     logger.info("processing payout id=%s attempt=%d", payout_id, self.request.retries + 1)
@@ -50,8 +50,8 @@ def process_payout(self, payout_id: str) -> None:
         logger.warning("invalid transition payout=%s: %s", payout_id, e)
         return
 
-    # Commit 'processing' before the external call so the reap task can
-    # find and recover this payout if the worker dies mid-flight.
+    # Commit 'processing' before calling the bank so reap_stuck_payouts
+    # can recover this payout if the worker dies mid-flight.
     outcome = _simulate_bank_transfer()
     logger.info("payout %s outcome=%s", payout_id, outcome)
 

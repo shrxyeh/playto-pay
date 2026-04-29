@@ -38,16 +38,11 @@ def create_payout(
         raise ValueError("amount_paise must be positive")
 
     with transaction.atomic():
-        # Lock the merchant row first. This serializes all concurrent payout
-        # requests for this merchant. The second request blocks here until
-        # the first commits, then reads the already-updated ledger balance.
         try:
             merchant = Merchant.objects.select_for_update().get(id=merchant_id)
         except Merchant.DoesNotExist:
             raise PayoutNotFoundError(f"Merchant {merchant_id} not found")
 
-        # Idempotency check happens inside the lock so two in-flight requests
-        # with the same key can't both pass through and create duplicate payouts.
         expiry_cutoff = timezone.now() - timedelta(hours=24)
         try:
             existing = IdempotencyRecord.objects.get(
@@ -58,9 +53,8 @@ def create_payout(
             logger.info("idempotency hit merchant=%s key=%s", merchant_id, idempotency_key)
             return existing.response_json
         except IdempotencyRecord.DoesNotExist:
-            # Clean up any expired record with this key; without this the
-            # UniqueConstraint below would reject the insert even though
-            # the old record is past its 24-hour window.
+            # Delete expired record with same key so the UniqueConstraint
+            # doesn't block the fresh insert below.
             IdempotencyRecord.objects.filter(
                 merchant=merchant,
                 idempotency_key=idempotency_key,
@@ -102,8 +96,7 @@ def finalize_success(payout_id: str) -> None:
         payout.transition_to(Payout.Status.COMPLETED)
         payout.save(update_fields=["status", "updated_at"])
 
-        # amount=0 because the hold already reduced the balance at request time;
-        # this entry exists only for the audit trail.
+        # amount=0: hold already reduced the balance; this is audit-only.
         LedgerEntry.objects.create(
             merchant=payout.merchant,
             amount=0,
@@ -114,7 +107,6 @@ def finalize_success(payout_id: str) -> None:
 
 
 def finalize_failure(payout_id: str) -> None:
-    """Refund is atomic with the state transition; both commit or neither does."""
     with transaction.atomic():
         payout = Payout.objects.select_for_update().get(id=payout_id)
         payout.transition_to(Payout.Status.FAILED)

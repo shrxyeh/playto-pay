@@ -40,7 +40,6 @@ class Payout(models.Model):
         ]
 
     def transition_to(self, new_status: str) -> None:
-        """Raises InvalidTransitionError for any move not in _VALID_TRANSITIONS."""
         allowed = self._VALID_TRANSITIONS.get(self.status, set())
         if new_status not in allowed:
             raise InvalidTransitionError(
@@ -54,10 +53,6 @@ class Payout(models.Model):
 
 
 class LedgerEntry(models.Model):
-    """
-    Append-only ledger. Positive = credit, negative = debit.
-    Balance is always derived via SUM, never stored as a column.
-    """
 
     class EntryType(models.TextChoices):
         CREDIT = "credit", "Credit"

@@ -1,9 +1,3 @@
-"""
-python manage.py seed
-
-Creates 3 merchants with realistic credit histories and clears any existing
-seed data first so the command is safe to re-run.
-"""
 from django.core.management.base import BaseCommand
 from django.db import transaction
 

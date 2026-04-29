@@ -1,14 +1,5 @@
-"""
-Concurrency test: two simultaneous payout requests for the same merchant
-when the balance only covers one should result in exactly one success.
-
-Uses TransactionTestCase (not TestCase) because:
-  - TestCase wraps each test in a transaction that is never committed,
-    so SELECT FOR UPDATE never actually blocks; all threads share the
-    same unfinished transaction and the lock is invisible.
-  - TransactionTestCase commits each operation to the real DB so
-    PostgreSQL row locks work as intended across threads.
-"""
+# TransactionTestCase required: TestCase never commits, so SELECT FOR UPDATE
+# doesn't block across threads. These tests need real DB-level locking.
 import uuid
 import threading
 from django.test import TransactionTestCase
